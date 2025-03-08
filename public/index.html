@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Plaid MVP</title>
+    <!-- Plaid Link script -->
+    <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+  </head>
+  <body>
+    <h1>Plaid MVP Demo</h1>
+    <button id="linkButton">Connect to Bank</button>
+    <button id="transactionsButton">Get Transactions</button>
+    <pre id="output"></pre>
+
+    <script>
+      const linkButton = document.getElementById("linkButton");
+      const transactionsButton = document.getElementById("transactionsButton");
+      const output = document.getElementById("output");
+
+      // 1) Create Link token, then initialize Plaid Link
+      linkButton.addEventListener("click", async () => {
+        try {
+          const createTokenResponse = await fetch("/api/create_link_token", {
+            method: "POST",
+          });
+          const data = await createTokenResponse.json();
+
+          // 2) Open Plaid Link using the Link token from the server
+          const handler = Plaid.create({
+            token: data.link_token,
+            onSuccess: async (public_token, metadata) => {
+              // 3) Send the public token to the server to get an access token
+              const exchangeRes = await fetch("/api/exchange_public_token", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ public_token }),
+              });
+              if (exchangeRes.ok) {
+                output.textContent = "Access token obtained!\n";
+              } else {
+                output.textContent = "Error exchanging public token.\n";
+              }
+            },
+            onExit: (err, metadata) => {
+              if (err != null) {
+                output.textContent = "User exited Plaid Link flow.";
+              }
+            },
+          });
+          handler.open();
+        } catch (error) {
+          console.error(error);
+          output.textContent = "Error creating or using Link token.";
+        }
+      });
+
+      // Retrieve transactions
+      transactionsButton.addEventListener("click", async () => {
+        try {
+          const txRes = await fetch("/api/transactions");
+          if (!txRes.ok) {
+            output.textContent = await txRes.text();
+            return;
+          }
+          const transactions = await txRes.json();
+          output.textContent = JSON.stringify(transactions, null, 2);
+        } catch (error) {
+          console.error(error);
+          output.textContent = "Error fetching transactions.";
+        }
+      });
+    </script>
+  </body>
+</html>
