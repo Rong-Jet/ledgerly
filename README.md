@@ -16,8 +16,7 @@
 - 🔗 Integration with external financial tools (long-term goal)
 
 ## License
-Ledgerly is currently a personal project and is not licensed for public use. If I decide to open-source it in the future, I will update this section with an appropriate license.
-
+Ledgerly is licensed under the MIT License. See the `LICENSE` file for more details
 ## Acknowledgments
 This project is a continuous learning experience, and I welcome feedback, ideas, and suggestions for improvements!
 
