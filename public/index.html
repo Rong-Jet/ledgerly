@@ -2,12 +2,11 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Plaid MVP</title>
-    <!-- Plaid Link script -->
+    <title>Plaid + Python MVP</title>
     <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
   </head>
   <body>
-    <h1>Plaid MVP Demo</h1>
+    <h1>Node + Plaid + Python Demo</h1>
     <button id="linkButton">Connect to Bank</button>
     <button id="transactionsButton">Get Transactions</button>
     <pre id="output"></pre>
@@ -17,28 +16,29 @@
       const transactionsButton = document.getElementById("transactionsButton");
       const output = document.getElementById("output");
 
-      // 1) Create Link token, then initialize Plaid Link
+      // 1) Request a Link token, then open Plaid Link
       linkButton.addEventListener("click", async () => {
         try {
-          const createTokenResponse = await fetch("/api/create_link_token", {
-            method: "POST",
-          });
-          const data = await createTokenResponse.json();
+          const resp = await fetch("/api/create_link_token", { method: "POST" });
+          const data = await resp.json();
+          if (!data.link_token) {
+            output.textContent = "Failed to create link token.";
+            return;
+          }
 
-          // 2) Open Plaid Link using the Link token from the server
           const handler = Plaid.create({
             token: data.link_token,
             onSuccess: async (public_token, metadata) => {
-              // 3) Send the public token to the server to get an access token
+              // 2) Exchange public token for access token
               const exchangeRes = await fetch("/api/exchange_public_token", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ public_token }),
               });
               if (exchangeRes.ok) {
-                output.textContent = "Access token obtained!\n";
+                output.textContent = "Access token obtained!";
               } else {
-                output.textContent = "Error exchanging public token.\n";
+                output.textContent = "Error exchanging public token.";
               }
             },
             onExit: (err, metadata) => {
@@ -50,11 +50,11 @@
           handler.open();
         } catch (error) {
           console.error(error);
-          output.textContent = "Error creating or using Link token.";
+          output.textContent = "Error creating link token.";
         }
       });
 
-      // Retrieve transactions
+      // 3) Retrieve transactions and see the Python-processed summary
       transactionsButton.addEventListener("click", async () => {
         try {
           const txRes = await fetch("/api/transactions");
@@ -62,8 +62,8 @@
             output.textContent = await txRes.text();
             return;
           }
-          const transactions = await txRes.json();
-          output.textContent = JSON.stringify(transactions, null, 2);
+          const processedData = await txRes.json();
+          output.textContent = JSON.stringify(processedData, null, 2);
         } catch (error) {
           console.error(error);
           output.textContent = "Error fetching transactions.";
