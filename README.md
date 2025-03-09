@@ -1,6 +1,6 @@
-# Ledgerly
+# ledgerly
 
-**Ledgerly** is a personal budgeting application that I'm developing as a learning project. The goal is to create a simple yet powerful tool for tracking expenses, managing budgets, and gaining financial insights. Over time, I plan to expand Ledgerly with new features, improve its functionality, and refine the user experience.
+**ledgerly** is a personal budgeting application that I'm developing as a learning project. The goal is to create a simple yet powerful tool for tracking expenses, managing budgets, and gaining financial insights. Over time, I plan to expand Ledgerly with new features, improve its functionality, and refine the user experience.
 
 ## Project Goals
 - **Learn and experiment** with software development concepts, including web development, backend logic, and data management.
