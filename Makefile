@@ -12,15 +12,29 @@ install:
 
 # Run all applications
 start:
-	@concurrently "npm run dev --prefix $(NODE_DIR)" "cd $(PYTHON_DIR) && python watcher.py"
+	@npm run dev --prefix $(NODE_DIR) 
+	@cd $(PYTHON_DIR) && python watcher.py
+	@powershell Start-Process powershell -Verb runAs -ArgumentList '"net start postgresql-x64-17"'
 
 # Run Python script
-run-python:
+start-python:
 	@cd $(PYTHON_DIR) && python watcher.py
 
 # Start Node.js application
-run-node:
+start-node:
 	@cd $(NODE_DIR) && npm run dev
+
+# Start PostgreSQL database
+start-db:
+	@powershell Start-Process powershell -Verb runAs -ArgumentList '"net start postgresql-x64-17"'
+
+# Connect to PostgreSQL database
+connect-db:
+	@bash -c "psql -U postgres"
+
+# Stop PostgreSQL database
+stop-db:
+	@powershell Start-Process powershell -Verb runAs -ArgumentList '"net stop postgresql-x64-17"'
 
 # Command to stop all Node.js and Python processes
 stop:
